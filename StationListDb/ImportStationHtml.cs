@@ -22,7 +22,10 @@ namespace RadioDb
         private string ctryIdx;
         public List<string> data { get; set; }
 
-
+        /// <summary>
+        /// load all stations from a given country
+        /// </summary>
+        /// <param name="startUrl"></param>
         public ImportStationHtml(string startUrl)
         {
             // 1. get the website 
@@ -33,10 +36,14 @@ namespace RadioDb
 
         }
 
+        /// <summary>
+        /// load parts of the country and add raw data to a list (data)
+        /// </summary>
+        /// <param name="strtUrl"></param>
         private void GetSite( string strtUrl)
         {
             var siteToLoad = strtUrl.Replace("o=top", ctryIdx);
-            Console.WriteLine($"Loading Site {siteToLoad} !");
+            //Console.WriteLine($"Loading Site {siteToLoad} !");
             System.Net.WebClient wc = new();
             byte[] raw = wc.DownloadData(siteToLoad);
             var htmlTxt = System.Text.Encoding.UTF8.GetString(raw);

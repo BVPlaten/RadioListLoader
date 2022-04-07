@@ -3,33 +3,31 @@ using RadioDb;
 using RadioDb.DataAccess;
 using RadioDb.Models;
 using System.Linq;
-
-//CountryUrls? ctr = new CountryUrls(@"D:\temp\landesliste.html");
+using System.Text;
 
 RadioDb.RadioDb? dataBase = new();
 RadioDb.CountryData? ctr = new CountryData(@"http://fmstream.org/country.htm");
+Dictionary<string,List<string>> dataByCountry = new();
 
-// import the json data of the stations 
-List<string> rawJsn = new();
-foreach (var i in ctr)
+// prepare a list of strinbgs for every given country
+foreach (var c in ctr)
 {
-    ImportStationHtml html = new(i.MainUrl);
-    Console.WriteLine( html.data.ToString() );
+    dataByCountry[c.CountryName] = new List<string>();
 }
-Console.WriteLine($"Anzahl geladene Websides = {rawJsn.Count} !!");
 
-// update data-base - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-foreach (var ctry in ctr)
+// read the data
+Parallel.ForEach(ctr, c => 
 {
-    dataBase.AddCountry(ctry);  
+    // get all countries in parralel 
+    global::System.Console.WriteLine($"importing {c.CountryName} - - -");
+    ImportStationHtml html = new(c.MainUrl);
+    dataByCountry[c.CountryName].AddRange(html.data);
+});
+
+// write a file for every country
+foreach (var c in ctr)
+{
+    File.WriteAllLines($"D:\\temp\\station_data_raw__{c.CountryName}.txt", dataByCountry[c.CountryName], Encoding.UTF8);   
 }
-dataBase.db.SaveChanges();
-
-
-
-//foreach (var cys in dataBase.db.CountryStations)
-//{
-//    var cd = new StationData(cys.MainUrl);
-//}
 return;
 
